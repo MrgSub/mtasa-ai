@@ -1,0 +1,26 @@
+<meta>
+    <!-- Info -->
+    <info author="AJXB / MrgSub" name="AI Engine" version="1.0.0" type="script" />
+    <oop>true</oop>
+
+    <!-- Scripts -->
+    <script src="engine.lua" type="server" />
+    <script src="example.lua" type="server" />
+
+    <!-- Exported functions -->
+    <export function="init" type="server" />
+    <export function="generateText" type="server" />
+    <export function="generateObject" type="server" />
+    <export function="getProviders" type="server" />
+    <export function="getModels" type="server" />
+    <export function="getConfig" type="server" />
+
+    <!-- ACL Permissions -->
+    <aclrequest>
+        <right name="function.fetchRemote" access="true" />
+        <right name="function.setTimer" access="true" />
+    </aclrequest>
+
+    <!-- Min MTA Version -->
+    <min_mta_version server="1.5.7-9.20726" />
+</meta>
