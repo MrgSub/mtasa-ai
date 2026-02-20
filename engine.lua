@@ -27,7 +27,6 @@ local PROVIDERS = {
     }
 }
 
--- Private utility functions
 local function validateConfig(config)
     if not config then error("Config is required") end
 
@@ -153,7 +152,6 @@ local function parseResponse(responseData, provider)
     return nil
 end
 
--- Public functions
 function AI.init(config)
     validateConfig(config)
 
@@ -197,7 +195,6 @@ function AI.generateText(prompt, system)
     end
 end
 
--- Beta, not fully tested
 function AI.generateObject(prompt, system)
     if type(prompt) ~= "string" then
         error("Prompt must be a string")
@@ -231,7 +228,6 @@ function AI.generateObject(prompt, system)
     end
 end
 
--- Utility functions
 function AI.getProviders()
     local providers = {}
     for provider, _ in pairs(PROVIDERS) do
@@ -254,7 +250,34 @@ function AI.getModels(provider)
 end
 
 function AI.getConfig()
+    if type(AI._config) ~= "table" then
+        return {}
+    end
     return table.copy(AI._config)
+end
+
+function init(config)
+    return AI.init(config)
+end
+
+function generateText(prompt, system)
+    return AI.generateText(prompt, system)
+end
+
+function generateObject(prompt, system)
+    return AI.generateObject(prompt, system)
+end
+
+function getProviders()
+    return AI.getProviders()
+end
+
+function getModels(provider)
+    return AI.getModels(provider)
+end
+
+function getConfig()
+    return AI.getConfig()
 end
 
 return AI
