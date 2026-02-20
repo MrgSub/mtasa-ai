@@ -227,6 +227,26 @@ local function sanitizeInteraction(text)
     return trimmed
 end
 
+local function hasNearbyPedWithinRadius(state, radius)
+    if not isElement(state.element) then
+        return false
+    end
+    local x, y = getElementPosition(state.element)
+    local radiusSquared = radius * radius
+    for pedId, otherState in pairs(runtime.pedsById) do
+        if pedId ~= state.id and isElement(otherState.element) then
+            local ox, oy = getElementPosition(otherState.element)
+            local dx = ox - x
+            local dy = oy - y
+            local distanceSquared = dx * dx + dy * dy
+            if distanceSquared <= radiusSquared then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 local function applyDecisionIntent(state, decision, source)
     if not isElement(state.element) then
         return
@@ -255,7 +275,7 @@ local function applyDecisionIntent(state, decision, source)
     local interaction = sanitizeInteraction(decision.interaction)
     if interaction then
         local now = getTickCount()
-        if now - state.lastInteractionAt >= runtime.config.interactionCooldownMs then
+        if now - state.lastInteractionAt >= runtime.config.interactionCooldownMs and hasNearbyPedWithinRadius(state, runtime.config.interactionRadius) then
             runtime.stats.interactions = runtime.stats.interactions + 1
             state.lastInteractionAt = now
             outputDebugString(string.format("[Ped %s] %s", state.name, interaction))
@@ -603,14 +623,19 @@ function PedSimulation.spawn(count, spawnOptions)
 end
 
 function PedSimulation.despawnAll()
+    local elementsToDestroy = {}
     for pedId, state in pairs(runtime.pedsById) do
         removeQueuedPed(pedId)
         if state.intent and isElement(state.element) then
             clearPedControls(state.element)
         end
         if isElement(state.element) then
-            destroyElement(state.element)
-            runtime.stats.despawned = runtime.stats.despawned + 1
+            elementsToDestroy[#elementsToDestroy + 1] = state.element
+        end
+    end
+    for _, ped in ipairs(elementsToDestroy) do
+        if isElement(ped) then
+            destroyElement(ped)
         end
     end
     runtime.pedsById = {}
